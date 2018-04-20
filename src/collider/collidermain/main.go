@@ -13,7 +13,8 @@ import (
 
 var tls = flag.Bool("tls", true, "whether TLS is used")
 var port = flag.Int("port", 443, "The TCP port that the server listens on")
-var roomSrv = flag.String("room-server", "https://appr.tc", "The origin of the room server")
+//var roomSrv = flag.String("room-server", "https://appr.tc", "The origin of the room server")
+var roomSrv = flag.String("room-server", "https://even-environs-201619.appspot.com", "The origin of the room server")
 
 func main() {
 	flag.Parse()
