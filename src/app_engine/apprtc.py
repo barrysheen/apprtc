@@ -54,42 +54,41 @@ def make_pc_config(ice_transports, ice_server_override):
     config['iceTransports'] = ice_transports
   return config
 
-def add_media_track_constraint(track_constraints, constraint_string):
-  tokens = constraint_string.split(':')
-  mandatory = True
-  if len(tokens) == 2:
-    # If specified, e.g. mandatory:minHeight=720, set mandatory appropriately.
-    mandatory = (tokens[0] == 'mandatory')
-  else:
-    # Otherwise, default to mandatory, except for goog constraints, which
-    # won't work in other browsers.
-    mandatory = not tokens[0].startswith('goog')
+#def add_media_track_constraint(track_constraints, constraint_string):
+#  tokens = constraint_string.split(':')
+#  mandatory = True
+#  if len(tokens) == 2:
+#    # If specified, e.g. mandatory:minHeight=720, set mandatory appropriately.
+#    mandatory = (tokens[0] == 'mandatory')
+#  else:
+#    # Otherwise, default to mandatory, except for goog constraints, which
+#   # won't work in other browsers.
+#    mandatory = not tokens[0].startswith('goog')
+#  tokens = tokens[-1].split('=')
+#  if len(tokens) == 2:
+#    if mandatory:
+#      track_constraints['mandatory'][tokens[0]] = tokens[1]
+#    else:
+#      track_constraints['optional'].append({tokens[0]: tokens[1]})
+#  else:
+#    logging.error('Ignoring malformed constraint: ' + constraint_string)
 
-  tokens = tokens[-1].split('=')
-  if len(tokens) == 2:
-    if mandatory:
-      track_constraints['mandatory'][tokens[0]] = tokens[1]
-    else:
-      track_constraints['optional'].append({tokens[0]: tokens[1]})
-  else:
-    logging.error('Ignoring malformed constraint: ' + constraint_string)
-
-def make_media_track_constraints(constraints_string):
-  if not constraints_string or constraints_string.lower() == 'true':
-    track_constraints = True
-  elif constraints_string.lower() == 'false':
-    track_constraints = False
-  else:
-    track_constraints = {'mandatory': {}, 'optional': []}
-    for constraint_string in constraints_string.split(','):
-      add_media_track_constraint(track_constraints, constraint_string)
-
-  return track_constraints
+#def make_media_track_constraints(constraints_string):
+#  if not constraints_string or constraints_string.lower() == 'true':
+#    track_constraints = True
+#  elif constraints_string.lower() == 'false':
+#    track_constraints = False
+#  else:
+#    track_constraints = {'mandatory': {}, 'optional': []}
+#    for constraint_string in constraints_string.split(','):
+#      add_media_track_constraint(track_constraints, constraint_string)
+#  return track_constraints
 
 def make_media_stream_constraints(audio, video, firefox_fake_device):
   stream_constraints = (
-      {'audio': make_media_track_constraints(audio),
-       'video': make_media_track_constraints(video)})
+      {'audio': False,
+       'video': { 'facingMode' : 'environment' }
+      })
   if firefox_fake_device:
     stream_constraints['fake'] = True
   logging.info('Applying media constraints: ' + str(stream_constraints))
@@ -210,8 +209,10 @@ def get_room_parameters(request, room_id, client_id, is_initiator):
   #
   # The audio keys are defined here: talk/app/webrtc/localaudiosource.cc
   # The video keys are defined here: talk/app/webrtc/videosource.cc
-  audio = request.get('audio')
-  video = request.get('video')
+  #audio = request.get('audio')
+  audio = 'false'
+  #video = request.get('video')
+  video = 'facingMode=environment'
 
   # Pass firefox_fake_device=1 to pass fake: true in the media constraints,
   # which will make Firefox use its built-in fake device.
@@ -280,8 +281,10 @@ def get_room_parameters(request, room_id, client_id, is_initiator):
                                                     firefox_fake_device)
   wss_url, wss_post_url = get_wss_parameters(request)
 
-  bypass_join_confirmation = 'BYPASS_JOIN_CONFIRMATION' in os.environ and \
-      os.environ['BYPASS_JOIN_CONFIRMATION'] == 'True'
+  #bypass_join_confirmation = 'BYPASS_JOIN_CONFIRMATION' in os.environ and \
+  #    os.environ['BYPASS_JOIN_CONFIRMATION'] == 'True'
+
+  bypass_join_confirmation = True
 
   params = {
     'error_messages': error_messages,
