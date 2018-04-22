@@ -8,10 +8,10 @@ import os
 
 # Deprecated domains which we should to redirect to REDIRECT_URL.
 REDIRECT_DOMAINS =  [
-  'apprtc.appspot.com', 'apprtc.webrtc.org', 'www.appr.tc'
+  'mylivetour.com'
 ]
 # URL which we should redirect to if matching in REDIRECT_DOMAINS.
-REDIRECT_URL = 'https://appr.tc'
+REDIRECT_URL = 'https://www.mylivetour.com'
 
 ROOM_MEMCACHE_EXPIRATION_SEC = 60 * 60 * 24
 MEMCACHE_RETRY_LIMIT = 100
@@ -20,40 +20,36 @@ LOOPBACK_CLIENT_ID = 'LOOPBACK_CLIENT_ID'
 
 # Turn/Stun server override. This allows AppRTC to connect to turn servers
 # directly rather than retrieving them from an ICE server provider.
-ICE_SERVER_OVERRIDE = None
+#ICE_SERVER_OVERRIDE = None
 # Enable by uncomment below and comment out above, then specify turn and stun
-# ICE_SERVER_OVERRIDE  = [
-#   {
-#     "urls": [
-#       "turn:hostname/IpToTurnServer:19305?transport=udp",
-#       "turn:hostname/IpToTurnServer:19305?transport=tcp"
-#     ],
-#     "username": "TurnServerUsername",
-#     "credential": "TurnServerCredentials"
-#   },
-#   {
-#     "urls": [
-#       "stun:hostname/IpToStunServer:19302"
-#     ]
-#   }
-# ]
+ICE_SERVER_OVERRIDE  = [
+   {
+     "urls": [
+       "turn:turn-server.mylivetour.com:5349?transport=udp",
+       "turn:turn-server.mylivetour.com:5349?transport=tcp"
+     ],
+     "username": "livetour",
+     "credential": "livetour"
+   },
+   {
+     "urls": [
+       "stun:turn-server.mylivetour.com:5349"
+     ]
+   }
+]
 
 ICE_SERVER_BASE_URL = 'https://networktraversal.googleapis.com'
 ICE_SERVER_URL_TEMPLATE = '%s/v1alpha/iceconfig?key=%s'
 ICE_SERVER_API_KEY = os.environ.get('ICE_SERVER_API_KEY')
 
 # Dictionary keys in the collider instance info constant.
-WSS_INSTANCE_HOST_KEY = 'host_port_pair'
-WSS_INSTANCE_NAME_KEY = 'vm_name'
-WSS_INSTANCE_ZONE_KEY = 'zone'
+WSS_INSTANCE_HOST_KEY = 'signalling-server.mylivetour.com:443'
+WSS_INSTANCE_NAME_KEY = 'signalling'
+WSS_INSTANCE_ZONE_KEY = 'europe-west2-a'
 WSS_INSTANCES = [{
-    WSS_INSTANCE_HOST_KEY: 'apprtc-ws.webrtc.org:443',
-    WSS_INSTANCE_NAME_KEY: 'wsserver-std',
-    WSS_INSTANCE_ZONE_KEY: 'us-central1-a'
-}, {
-    WSS_INSTANCE_HOST_KEY: 'apprtc-ws-2.webrtc.org:443',
-    WSS_INSTANCE_NAME_KEY: 'wsserver-std-2',
-    WSS_INSTANCE_ZONE_KEY: 'us-central1-f'
+    WSS_INSTANCE_HOST_KEY: 'signalling-server.mylivetour.com:443',
+    WSS_INSTANCE_NAME_KEY: 'signalling',
+    WSS_INSTANCE_ZONE_KEY: 'europe-west2-a'
 }]
 
 WSS_HOST_PORT_PAIRS = [ins[WSS_INSTANCE_HOST_KEY] for ins in WSS_INSTANCES]
