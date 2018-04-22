@@ -1,6 +1,6 @@
 {
-  "short_name": "AppRTC",
-  "name": "WebRTC reference app",
+  "short_name": "MyLiveTour",
+  "name": "MyLiveTour app",
   "icons": [
     {
       "src": "/images/webrtc-icon-192x192.png",
