@@ -23,7 +23,7 @@ var UI_CONSTANTS = {
   confirmJoinButton: '#confirm-join-button',
   confirmJoinDiv: '#confirm-join-div',
   confirmJoinRoomSpan: '#confirm-join-room-span',
-  fullscreenSvg: '#fullscreen',
+  switchVideoSvg: '#switch-video',
   hangupSvg: '#hangup',
   icons: '#icons',
   infoDiv: '#info-div',
@@ -79,8 +79,6 @@ var AppController = function(loadingParams) {
       new AppController.IconSet_(UI_CONSTANTS.muteAudioSvg);
   this.muteVideoIconSet_ =
       new AppController.IconSet_(UI_CONSTANTS.muteVideoSvg);
-  this.fullscreenIconSet_ =
-      new AppController.IconSet_(UI_CONSTANTS.fullscreenSvg);
 
   this.loadingParams_ = loadingParams;
   this.loadUrlParams_();
@@ -206,7 +204,7 @@ AppController.prototype.setupUi_ = function() {
 
   $(UI_CONSTANTS.muteAudioSvg).onclick = this.toggleAudioMute_.bind(this);
   $(UI_CONSTANTS.muteVideoSvg).onclick = this.toggleVideoMute_.bind(this);
-  $(UI_CONSTANTS.fullscreenSvg).onclick = this.toggleFullScreen_.bind(this);
+  $(UI_CONSTANTS.switchVideoSvg).onclick = this.toggleCamera_.bind(this);
   $(UI_CONSTANTS.hangupSvg).onclick = this.hangup_.bind(this);
 
   setUpFullScreen();
@@ -251,6 +249,7 @@ AppController.prototype.hangup_ = function() {
   // Reset key and mouse event handlers.
   document.onkeypress = null;
   window.onmousemove = null;
+  window.ontouchstart = null;
 };
 
 AppController.prototype.onRemoteHangup_ = function() {
@@ -400,7 +399,7 @@ AppController.prototype.onNewRoomClick_ = function() {
 
 // Spacebar, or m: toggle audio mute.
 // c: toggle camera(video) mute.
-// f: toggle fullscreen.
+// s: toggle camera (front/back).
 // i: toggle info panel.
 // q: quit (hangup)
 // Return false to screen out original Chrome shortcuts.
@@ -419,8 +418,10 @@ AppController.prototype.onKeyPress_ = function(event) {
         this.muteVideoIconSet_.toggle();
       }
       return false;
-    case 'f':
-      this.toggleFullScreen_();
+    case 's':
+      if (this.call_) {
+        this.call_.toggleCamera();
+      }      
       return false;
     case 'i':
       this.infoBox_.toggleInfoDiv();
@@ -475,19 +476,8 @@ AppController.prototype.toggleVideoMute_ = function() {
   this.muteVideoIconSet_.toggle();
 };
 
-AppController.prototype.toggleFullScreen_ = function() {
-  if (isFullScreen()) {
-    trace('Exiting fullscreen.');
-    document.querySelector('svg#fullscreen title').textContent =
-        'Enter fullscreen';
-    document.cancelFullScreen();
-  } else {
-    trace('Entering fullscreen.');
-    document.querySelector('svg#fullscreen title').textContent =
-        'Exit fullscreen';
-    document.body.requestFullScreen();
-  }
-  this.fullscreenIconSet_.toggle();
+AppController.prototype.toggleCamera_ = function() {
+  this.call_.toggleCamera();  
 };
 
 AppController.prototype.toggleMiniVideo_ = function() {

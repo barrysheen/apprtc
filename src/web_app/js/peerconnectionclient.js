@@ -83,6 +83,28 @@ PeerConnectionClient.prototype.addStream = function(stream) {
   this.pc_.addStream(stream);
 };
 
+PeerConnectionClient.prototype.removeStream = function(stream) {
+  if (!this.pc_) {
+    return;
+  }
+  this.pc_.removeStream(stream);
+};
+
+PeerConnectionClient.prototype.sendOffer = function(offerOptions) {
+  if (!this.pc_) {
+    return false;
+  }
+  var constraints = mergeConstraints(
+    PeerConnectionClient.DEFAULT_SDP_OFFER_OPTIONS_, offerOptions);
+  trace('Sending offer to peer, with constraints: \n\'' +
+    JSON.stringify(constraints) + '\'.');
+  this.pc_.createOffer(constraints)
+    .then(this.setLocalSdpAndNotify_.bind(this))
+    .catch(this.onError_.bind(this, 'createOffer'));
+
+  return true;
+};
+
 PeerConnectionClient.prototype.startAsCaller = function(offerOptions) {
   if (!this.pc_) {
     return false;

@@ -27,6 +27,7 @@ var Call = function(params) {
   this.localStream_ = null;
   this.errorMessageQueue_ = [];
   this.startTime = null;
+  this.usingFacingCamera = true;
 
   // Public callbacks. Keep it sorted.
   this.oncallerstarted = null;
@@ -276,6 +277,54 @@ Call.prototype.toggleAudioMute = function() {
   }
   trace('Audio ' + (audioTracks[0].enabled ? 'unmuted.' : 'muted.'));
 };
+
+Call.prototype.toggleCamera = function() {
+  // first lets remove the current stream
+  var oldStream_ = this.localStream_;
+  
+  if (this.usingFacingCamera) {
+    this.params_.mediaConstraints.video = { facingMode : 'user' };
+    this.usingFacingCamera = false;
+  }
+  else {
+    this.params_.mediaConstraints.video = { facingMode : 'environment' };
+    this.usingFacingCamera = true;
+  }
+
+  this.maybeGetMedia_()
+  .then(function() {
+    if (this.localStream_) {
+      trace('Replacing the stream.');
+      this.pcClient_.removeStream(oldStream_);
+      this.pcClient_.addStream(this.localStream_);
+    }
+    this.pcClient_.sendOffer(this.params_.offerOptions);
+  }.bind(this))
+  .catch(function(e) {
+    this.onError_('Toggle Camera exception: ' + e);
+    alert('Cannot Toggle Camera: ' + e.message);
+  }.bind(this));
+
+  //this.restart();
+};
+
+Call.prototype.maybeToggleCamera_ = function() {
+
+}
+
+Promise.all([this.getIceServersPromise_, this.getMediaPromise_])
+        .then(function() {
+          this.startSignaling_();
+          if (isChromeApp()) {
+            // We need to register the required clean up steps with the
+            // background window as soon as we have the information available.
+            // This is required because only the background window is notified
+            // when the window closes.
+            this.queueCleanupMessages_();
+          }
+        }.bind(this)).catch(function(error) {
+          this.onError_('Failed to start signaling: ' + error.message);
+        }.bind(this));
 
 // Connects client to the room. This happens by simultaneously requesting
 // media, requesting turn, and join the room. Once all three of those
