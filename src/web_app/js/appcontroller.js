@@ -23,7 +23,7 @@ var UI_CONSTANTS = {
   confirmJoinButton: '#confirm-join-button',
   confirmJoinDiv: '#confirm-join-div',
   confirmJoinRoomSpan: '#confirm-join-room-span',
-  switchVideoSvg: '#switch-video',
+  //switchVideoSvg: '#switch-video',
   hangupSvg: '#hangup',
   icons: '#icons',
   infoDiv: '#info-div',
@@ -204,7 +204,7 @@ AppController.prototype.setupUi_ = function() {
 
   $(UI_CONSTANTS.muteAudioSvg).onclick = this.toggleAudioMute_.bind(this);
   $(UI_CONSTANTS.muteVideoSvg).onclick = this.toggleVideoMute_.bind(this);
-  $(UI_CONSTANTS.switchVideoSvg).onclick = this.toggleCamera_.bind(this);
+  //$(UI_CONSTANTS.switchVideoSvg).onclick = this.toggleCamera_.bind(this);
   $(UI_CONSTANTS.hangupSvg).onclick = this.hangup_.bind(this);
 
   setUpFullScreen();
