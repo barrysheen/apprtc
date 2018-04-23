@@ -514,6 +514,7 @@ AppController.prototype.deactivate_ = function(element) {
 };
 
 AppController.prototype.showIcons_ = function() {
+  alert('showicons');
   if (!this.icons_.classList.contains('active')) {
     this.activate_(this.icons_);
     this.setIconTimeout_();

@@ -334,8 +334,11 @@ svg {
   display: block;
   margin: 0 0 3vh 0;
   transform: translateX(calc(-6vw - 96px));
+  -webkit-transform: translateX(calc(-6vw - 96px));
   transition: all .1s;
+  -webkit-transition: all .1s;
   transition-timing-function: ease-in-out;
+  -webkit-transition-timing-function: ease-in-out;
 }
 
 svg:hover {
@@ -344,10 +347,12 @@ svg:hover {
 
 #icons.active svg {
   transform: translateX(0);
+  -webkit-transform: translateX(0);
 }
 
 #mute-audio {
   transition: 40ms;
+  -webkit-transition: 40ms;
 }
 
 #mute-audio:hover,
@@ -361,6 +366,7 @@ svg:hover {
 
 #mute-video {
   transition: 120ms;
+  -webkit-transition: 120ms;
 }
 
 #mute-video:hover,
@@ -374,6 +380,7 @@ svg:hover {
 
 #switch-video {
   transition: 200ms;
+  -webkit-transition: 200ms;
 }
 
 #switch-video:hover {
@@ -386,6 +393,7 @@ svg:hover {
 
 #fullscreen {
   transition: 280ms;
+  -webkit-transition: 280ms;
 }
 
 #fullscreen:hover,
@@ -399,6 +407,7 @@ svg:hover {
 
 #hangup {
   transition: 360ms;
+  -webkit-transition: 360ms;
 }
 
 #hangup:hover {
