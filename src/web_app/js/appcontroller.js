@@ -201,7 +201,8 @@ AppController.prototype.showRoomSelection_ = function() {
 AppController.prototype.setupUi_ = function() {
   this.iconEventSetup_();
   document.onkeypress = this.onKeyPress_.bind(this);
-  window.onmousemove = this.showIcons_.bind(this);
+  window.onmousemove = this.showIcons_.bind(this);  
+  window.ontouchstart = this.showIcons_.bind(this);
 
   $(UI_CONSTANTS.muteAudioSvg).onclick = this.toggleAudioMute_.bind(this);
   $(UI_CONSTANTS.muteVideoSvg).onclick = this.toggleVideoMute_.bind(this);
@@ -514,7 +515,7 @@ AppController.prototype.deactivate_ = function(element) {
 };
 
 AppController.prototype.showIcons_ = function() {
-  alert('showicons');
+  //alert('showicons');
   if (!this.icons_.classList.contains('active')) {
     this.activate_(this.icons_);
     this.setIconTimeout_();
