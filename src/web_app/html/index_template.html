@@ -22,6 +22,8 @@
 
   <title>MyLiveTour</title>
 
+  <script src='//cdnjs.cloudflare.com/ajax/libs/fingerprintjs2/1.8.0/fingerprint2.min.js' type="text/javascript"></script>
+
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" sizes="192x192" href="/images/webrtc-icon-192x192.png">
 {% if not chromeapp %}
@@ -155,7 +157,16 @@
         document.addEventListener('visibilitychange', onVisibilityChange);
         return;
       }
-      appController = new AppController(loadingParams);
+
+      var options = { 
+        excludeFlashFonts: true
+      }
+      new Fingerprint2(options).get(function(result) {
+        console.log(result);
+        loadingParams.clientId = result;
+        
+        appController = new AppController(loadingParams);
+      })      
     }
 
     function onVisibilityChange() {

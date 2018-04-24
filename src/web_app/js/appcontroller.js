@@ -54,6 +54,7 @@ var UI_CONSTANTS = {
 var AppController = function(loadingParams) {
   trace('Initializing; server= ' + loadingParams.roomServer + '.');
   trace('Initializing; room=' + loadingParams.roomId + '.');
+  trace('Initializing; client=' + loadingParams.clientId + '.');
 
   this.hangupSvg_ = $(UI_CONSTANTS.hangupSvg);
   this.icons_ = $(UI_CONSTANTS.icons);

@@ -280,37 +280,31 @@ Call.prototype.toggleAudioMute = function() {
 
 Call.prototype.toggleCamera = function() {
   // first lets remove the current stream
-  var oldStream_ = this.localStream_;
+  // var oldStream_ = this.localStream_;
   
-  if (this.usingFacingCamera) {
-    this.params_.mediaConstraints.video = { facingMode : 'user' };
-    this.usingFacingCamera = false;
-  }
-  else {
-    this.params_.mediaConstraints.video = { facingMode : 'environment' };
-    this.usingFacingCamera = true;
-  }
+  // if (this.usingFacingCamera) {
+  //   this.params_.mediaConstraints.video = { facingMode : 'user' };
+  //   this.usingFacingCamera = false;
+  // }
+  // else {
+  //   this.params_.mediaConstraints.video = { facingMode : 'environment' };
+  //   this.usingFacingCamera = true;
+  // }
 
-  this.maybeGetMedia_()
-  .then(function() {
-    if (this.localStream_) {
-      trace('Replacing the stream.');
-      this.pcClient_.removeStream(oldStream_);
-      this.pcClient_.addStream(this.localStream_);
-    }
-    this.pcClient_.sendOffer(this.params_.offerOptions);
-  }.bind(this))
-  .catch(function(e) {
-    this.onError_('Toggle Camera exception: ' + e);
-    alert('Cannot Toggle Camera: ' + e.message);
-  }.bind(this));
-
-  //this.restart();
+  // this.maybeGetMedia_()
+  // .then(function() {
+  //   if (this.localStream_) {
+  //     trace('Replacing the stream.');
+  //     this.pcClient_.removeStream(oldStream_);
+  //     this.pcClient_.addStream(this.localStream_);
+  //   }
+  //   this.pcClient_.sendOffer(this.params_.offerOptions);
+  // }.bind(this))
+  // .catch(function(e) {
+  //   this.onError_('Toggle Camera exception: ' + e);
+  //   alert('Cannot Toggle Camera: ' + e.message);
+  // }.bind(this));
 };
-
-Call.prototype.maybeToggleCamera_ = function() {
-
-}
 
 Promise.all([this.getIceServersPromise_, this.getMediaPromise_])
         .then(function() {
@@ -556,7 +550,7 @@ Call.prototype.joinRoom_ = function() {
       reject(Error('Missing room id.'));
     }
     var path = this.roomServer_ + '/join/' +
-        this.params_.roomId + window.location.search;
+        this.params_.roomId + '/' + this.params_.clientId + window.location.search;
 
     sendAsyncUrlRequest('POST', path).then(function(response) {
       var responseObj = parseJSON(response);

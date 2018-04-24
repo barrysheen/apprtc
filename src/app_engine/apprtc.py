@@ -246,13 +246,8 @@ def get_room_parameters(request, room_id, client_id, is_initiator):
   ipv6 = request.get('ipv6')
 
   debug = request.get('debug')
-  if debug == 'loopback':
-    # Set dtls to false as DTLS does not work for loopback.
-    dtls = 'false'
-    include_loopback_js = '<script src="/js/loopback.js"></script>'
-  else:
-    include_loopback_js = ''
-
+  
+  include_loopback_js = ''
   include_rtstats_js = ''
   if str(os.environ.get('WITH_RTSTATS')) != 'none' or \
     (os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine/') and \
@@ -304,6 +299,8 @@ def get_room_parameters(request, room_id, client_id, is_initiator):
     'version_info': json.dumps(get_version_info())
   }
 
+  is_link_owner = request.get('ilo')
+
   if room_id is not None:
     room_link = request.host_url + '/r/' + room_id
     room_link = append_url_arguments(request, room_link)
@@ -313,6 +310,8 @@ def get_room_parameters(request, room_id, client_id, is_initiator):
     params['client_id'] = client_id
   if is_initiator is not None:
     params['is_initiator'] = json.dumps(is_initiator)
+  if is_link_owner is not None:
+    params['is_link_owner'] = json.dumps(is_link_owner)
   return params
 
 # For now we have (room_id, client_id) pairs are 'unique' but client_ids are
@@ -321,8 +320,9 @@ def get_room_parameters(request, room_id, client_id, is_initiator):
 # TODO(tkchin): Generate room/client IDs in a unique way while handling
 # loopback scenario correctly.
 class Client:
-  def __init__(self, is_initiator):
+  def __init__(self, is_initiator, is_link_owner):
     self.is_initiator = is_initiator
+    self.is_link_owner = is_link_owner
     self.messages = []
   def add_message(self, msg):
     self.messages.append(msg)
@@ -331,7 +331,7 @@ class Client:
   def set_initiator(self, initiator):
     self.is_initiator = initiator
   def __str__(self):
-    return '{%r, %d}' % (self.is_initiator, len(self.messages))
+    return '{%r, %r, %d}' % (self.is_initiator, self.is_link_owner, len(self.messages))
 
 class Room:
   def __init__(self):
@@ -351,13 +351,17 @@ class Room:
       if key is not client_id:
         return client
     return None
+  def remove_none_link_owners(self):
+    for key, client in self.clients.items():
+      if client.is_link_owner:
+        del self.clients[key]
   def __str__(self):
     return str(self.clients.keys())
 
 def get_memcache_key_for_room(host, room_id):
   return '%s/%s' % (host, room_id)
 
-def add_client_to_room(request, room_id, client_id, is_loopback):
+def add_client_to_room(request, room_id, client_id, is_link_owner):
   key = get_memcache_key_for_room(request.host_url, room_id)
   memcache_client = memcache.Client()
   error = None
@@ -377,24 +381,23 @@ def add_client_to_room(request, room_id, client_id, is_loopback):
         break
       room = memcache_client.gets(key)
 
-    occupancy = room.get_occupancy()
-    if occupancy >= 2:
-      error = constants.RESPONSE_ROOM_FULL
-      break
+    # if client already belongs then remove 
     if room.has_client(client_id):
-      error = constants.RESPONSE_DUPLICATE_CLIENT
-      break
+      room.remove_client(client_id)
+
+    occupancy = room.get_occupancy()
+    # if the fulls still full, remove any that are not the link owner    
+    if occupancy >= 2:
+      room.remove_none_link_owners()
 
     if occupancy == 0:
       is_initiator = True
-      room.add_client(client_id, Client(is_initiator))
-      if is_loopback:
-        room.add_client(constants.LOOPBACK_CLIENT_ID, Client(False))
+      room.add_client(client_id, Client(is_initiator, is_link_owner))      
     else:
       is_initiator = False
       other_client = room.get_other_client(client_id)
       messages = other_client.messages
-      room.add_client(client_id, Client(is_initiator))
+      room.add_client(client_id, Client(is_initiator, is_link_owner))
       other_client.clear_messages()
 
     if memcache_client.cas(key, room, constants.ROOM_MEMCACHE_EXPIRATION_SEC):
@@ -530,10 +533,10 @@ class JoinPage(webapp2.RequestHandler):
     params = get_room_parameters(self.request, room_id, client_id, is_initiator)
     self.write_response('SUCCESS', params, messages)
 
-  def post(self, room_id):
-    client_id = generate_random(8)
-    is_loopback = self.request.get('debug') == 'loopback'
-    result = add_client_to_room(self.request, room_id, client_id, is_loopback)
+  def post(self, room_id, client_id):
+    #client_id = generate_random(8)
+    is_link_owner = self.request.get('ilo') == '1'
+    result = add_client_to_room(self.request, room_id, client_id, is_link_owner)
     if result['error'] is not None:
       logging.info('Error adding client to room: ' + result['error'] + \
           ', room_state=' + result['room_state'])
@@ -574,10 +577,10 @@ class RoomPage(webapp2.RequestHandler):
         get_memcache_key_for_room(self.request.host_url, room_id))
     if room is not None:
       logging.info('Room ' + room_id + ' has state ' + str(room))
-      if room.get_occupancy() >= 2:
-        logging.info('Room ' + room_id + ' is full')
-        self.write_response('full_template.html')
-        return
+      #if room.get_occupancy() >= 2:
+      #  logging.info('Room ' + room_id + ' is full')
+      #  self.write_response('full_template.html')
+      #  return
     # Parse out room parameters from request.
     params = get_room_parameters(self.request, room_id, None, None)
     # room_id/room_link will be included in the returned parameters
@@ -607,7 +610,7 @@ app = webapp2.WSGIApplication([
     ('/', MainPage),
     ('/a/', analytics_page.AnalyticsPage),
     ('/compute/(\w+)/(\S+)/(\S+)', compute_page.ComputePage),
-    ('/join/([a-zA-Z0-9-_]+)', JoinPage),
+    ('/join/([a-zA-Z0-9-_]+)/([a-zA-Z0-9-_]+)', JoinPage),
     ('/leave/([a-zA-Z0-9-_]+)/([a-zA-Z0-9-_]+)', LeavePage),
     ('/message/([a-zA-Z0-9-_]+)/([a-zA-Z0-9-_]+)', MessagePage),
     ('/params', ParamsPage),
