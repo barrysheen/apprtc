@@ -353,7 +353,7 @@ class Room:
     return None
   def remove_none_link_owners(self):
     for key, client in self.clients.items():
-      if client.is_link_owner:
+      if client.is_link_owner is False:
         del self.clients[key]
   def __str__(self):
     return str(self.clients.keys())
@@ -389,6 +389,8 @@ def add_client_to_room(request, room_id, client_id, is_link_owner):
     # if the fulls still full, remove any that are not the link owner    
     if occupancy >= 2:
       room.remove_none_link_owners()
+
+    occupancy = room.get_occupancy()
 
     if occupancy == 0:
       is_initiator = True

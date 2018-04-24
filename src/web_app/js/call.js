@@ -306,20 +306,6 @@ Call.prototype.toggleCamera = function() {
   // }.bind(this));
 };
 
-Promise.all([this.getIceServersPromise_, this.getMediaPromise_])
-        .then(function() {
-          this.startSignaling_();
-          if (isChromeApp()) {
-            // We need to register the required clean up steps with the
-            // background window as soon as we have the information available.
-            // This is required because only the background window is notified
-            // when the window closes.
-            this.queueCleanupMessages_();
-          }
-        }.bind(this)).catch(function(error) {
-          this.onError_('Failed to start signaling: ' + error.message);
-        }.bind(this));
-
 // Connects client to the room. This happens by simultaneously requesting
 // media, requesting turn, and join the room. Once all three of those
 // tasks is complete, the signaling process begins. At the same time, a
