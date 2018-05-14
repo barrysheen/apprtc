@@ -22,8 +22,6 @@
 
   <title>MyLiveTour</title>
 
-  <script src='//cdnjs.cloudflare.com/ajax/libs/fingerprintjs2/1.8.0/fingerprint2.min.js' type="text/javascript"></script>
-
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" sizes="192x192" href="/images/webrtc-icon-192x192.png">
 {% if not chromeapp %}
@@ -94,12 +92,13 @@
       <path class="off" transform="scale(0.6), translate(17,16)" d="M40 8H8c-2.21 0-4 1.79-4 4v24c0 2.21 1.79 4 4 4h32c2.21 0 4-1.79 4-4V12c0-2.21-1.79-4-4-4zm-4 24l-8-6.4V32H12V16h16v6.4l8-6.4v16z" fill="white"/>
     </svg>
 
-    <!--svg id="switch-video" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewbox="-10 -10 68 68">
+    <svg id="fullscreen" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewbox="-10 -10 68 68">
       <circle cx="24" cy="24" r="34">
-        <title>Switch Camera</title>
+        <title>Enter fullscreen</title>
       </circle>
-      <path transform="scale(0.6), translate(7,6)" d="M36 19v-7c0-1.1-.89-2-2-2H6c-1.11 0-2 .9-2 2v24c0 1.1.89 2 2 2h28c1.11 0 2-.9 2-2v-7l8 8V11l-8 8zM26 31v-5H14v5l-7-7 7-7v5h12v-5l7 7-7 7z" fill="white"/>
-    </svg-->
+      <path class="on" transform="scale(0.8), translate(7,6)" d="M10 32h6v6h4V28H10v4zm6-16h-6v4h10V10h-4v6zm12 22h4v-6h6v-4H28v10zm4-22v-6h-4v10h10v-4h-6z" fill="white"/>
+      <path class="off" transform="scale(0.8), translate(7,6)"  d="M14 28h-4v10h10v-4h-6v-6zm-4-8h4v-6h6v-4H10v10zm24 14h-6v4h10V28h-4v6zm-6-24v4h6v6h4V10H28z" fill="white"/>
+    </svg>
 
     <svg id="hangup" class="hidden" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewbox="-10 -10 68 68">
       <circle cx="24" cy="24" r="34">
@@ -157,16 +156,7 @@
         document.addEventListener('visibilitychange', onVisibilityChange);
         return;
       }
-
-      var options = { 
-        excludeFlashFonts: true
-      }
-      new Fingerprint2(options).get(function(result) {
-        console.log(result);
-        loadingParams.clientId = result;
-        
-        appController = new AppController(loadingParams);
-      })      
+      appController = new AppController(loadingParams);
     }
 
     function onVisibilityChange() {

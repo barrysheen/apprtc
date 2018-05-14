@@ -391,6 +391,20 @@ svg:hover {
   fill: #407cf7;
 }
 
+#fullscreen {
+  transition: 280ms;
+  -webkit-transition: 280ms;
+}
+
+#fullscreen:hover,
+#fullscreen.on {
+  background: #407cf7;
+}
+
+#fullscreen:hover circle {
+  fill: #407cf7;
+}
+
 #hangup {
   transition: 360ms;
   -webkit-transition: 360ms;
